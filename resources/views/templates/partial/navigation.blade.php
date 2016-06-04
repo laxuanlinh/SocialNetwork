@@ -8,7 +8,7 @@
             <!-- @if (Auth::check()) -->
             <ul class="nav navbar-nav">
                 <li><a href="#">Timeline</a></li>
-                <li><a href="#">Friends</a></li>
+                <li><a href="{{route('friends')}}">Friends</a></li>
             </ul>
 
             <form method="get" role="search" class="navbar-form navbar-left" action="/search">
@@ -22,7 +22,7 @@
             <ul class="nav navbar-nav navbar-right">
                 @if(Auth::check())
                     <li><a href="/profile/{{Auth::user()->username}}">{{ Auth::User()->getNameOrUsername() }}</a></li>
-                    <li><a href="">Update profile</a></li>
+                    <li><a href="{{ route('profile.edit') }}">Update profile</a></li>
                     <li><a href="/signout">Sign out</a></li>
                 @else
                     <li><a href="/signup">Sign up</a></li>

@@ -54,8 +54,35 @@ Route::get('/search', [
  * User profile
  */
 
+Route::get('/profile/edit', [
+    'uses' => '\Link\Http\Controllers\ProfileController@getEdit',
+    'as' => 'profile.edit',
+    'middleware' => ['auth']
+]);
+
+Route::post('profile/edit', [
+    'uses' => '\Link\Http\Controllers\ProfileController@postEdit',
+    'middleware' => ['auth']
+]);
+
+
 Route::get('profile/{username}',[
     'uses' => '\Link\Http\Controllers\ProfileController@getProfile',
     'middleware' => ['auth'],
-    'as' => 'user.profile'
+    'as' => 'profile'
+]);
+
+/**
+ * Friends
+ */
+Route::get('/friends',[
+    'uses' => '\Link\Http\Controllers\FriendController@getIndexPage',
+    'middleware' => ['auth'],
+    'as' => 'friends'
+]);
+
+Route::get('/friend/add/{username} ',[
+    'uses'=>'\Link\Http\Controllers\FriendController@getAdd',
+    'middleware'=>['auth'],
+    'as' => 'addfriend'
 ]);

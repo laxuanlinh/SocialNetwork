@@ -60,4 +60,59 @@ class User extends Model implements AuthenticatableContract
     {
         return "https://gravatar.com/avatar/{{ md5 ($this->email)}}?d=mm&s=50";
     }
+
+    public function friendsOfMine()
+    {
+        return $this->belongsToMany('Link\Models\User', 'friends', 'user_id', 'friend_id');
+    }
+
+    public function friendOf()
+    {
+        return $this->belongsToMany('Link\Models\User', 'friends', 'friend_id', 'user_id');
+
+    }
+
+    public function friends()
+    {
+        $arr = $this->friendsOfMine()->wherePivot('accepted', true)->get()->merge($this->friendOf()->wherePivot('accepted', true)->get());
+        return $arr;
+    }
+
+    //wtfff
+    public function friendRequests()
+    {
+        return $this->friendsOfMine()->wherePivot('accepted', false)->get();
+    }
+
+    public function friendRequestPending()
+    {
+        return $this->friendOf()->wherePivot('accepted', false)->get();
+    }
+
+    public function hasFriendRequestPending(User $user)
+    {
+        return $this->friendRequestPending()->where('uid', $user->uid)->count();
+    }
+
+    public function hasFriendRequestReceived(User $user)
+    {
+        return $this->friendRequests()->where('uid', $user->uid)->count();
+    }
+
+    public function addFriend(User $user)
+    {
+        $this->friendOf()->attach($user->uid);
+    }
+
+    public function acceptFriendRequest(User $user)
+    {
+        $this->friendRequests()->where('uid', $user->uid)->first()->pivot->update([
+           'accepted'=>true,
+        ]);
+    }
+
+    public function isFriendWith(User $user)
+    {
+        return (boolean) $this->friends()->where('uid', $user->uid)->count();
+    }
 }
