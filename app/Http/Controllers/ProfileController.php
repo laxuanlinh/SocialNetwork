@@ -4,6 +4,7 @@ namespace Link\Http\Controllers;
 Use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 Use Link\Models\User;
+Use Link\Models\Status;
 Use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
@@ -15,7 +16,13 @@ class ProfileController extends Controller
         {
             abort(404);
         }
-        return view('profile.index')->with('user', $user);
+
+        $statuses=$user->statuses()->notReply()->paginate(10);
+
+        return view('profile.index')
+            ->with('user', $user)
+            ->with('statuses', $statuses)
+            ->with('authIsFriendWith', Auth::user()->isFriendWith($user));
     }
 
     public function getEdit()

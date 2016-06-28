@@ -86,3 +86,42 @@ Route::get('/friend/add/{username} ',[
     'middleware'=>['auth'],
     'as' => 'addfriend'
 ]);
+
+Route::get('/friend/accept/{username}',[
+    'uses'=>'\Link\Http\Controllers\FriendController@getAccept',
+    'middleware'=>['auth'],
+    'as'=>'acceptfriend'
+]);
+
+Route::post('/friend/delete/{username}',[
+    'uses'=>'\Link\Http\Controllers\FriendController@postDelete',
+    'middleware'=>['auth'],
+    'as'=>'deletefriend'
+]);
+
+/**
+ * Statuses
+ */
+Route::post('status', [
+    'uses'=>'\Link\Http\Controllers\StatusController@postStatus',
+    'middleware'=>['auth'],
+    'as'=>'status.post'
+]);
+
+Route::post('status/{statusId}/reply', [
+    'uses'=>'\Link\Http\Controllers\StatusController@postReply',
+    'middleware'=>['auth'],
+    'as'=>'status.reply'
+]);
+
+Route::get('status/{statusId}/like', [
+    'uses'=>'\Link\Http\Controllers\StatusController@getLike',
+    'middleware'=>['auth'],
+    'as'=>'status.like'
+]);
+
+Route::get('status/{statusId}/dislike', [
+    'uses'=>'\Link\Http\Controllers\StatusController@getDislike',
+    'middleware'=>['auth'],
+    'as'=>'status.dislike'
+]);

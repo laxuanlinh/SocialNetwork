@@ -21,9 +21,71 @@ class FriendController extends Controller
         {
             return redirect()->route('home')->with('info', 'The user could not be found');
         }
-        if(Auth::user()->hasFriendRequestPending($user))
+
+        if(Auth::user()->uid===$user->uid)
         {
-            
+            return redirect()->route('home');
         }
+
+        if(Auth::user()->hasFriendRequestPending($user) || $user->hasFriendRequestPending(Auth::user()))
+        {
+            return redirect()->route('profile', ['username'=>$user->username])->with('info', 'Friend request already pending');
+        }
+
+        if(Auth::user()->isFriendWith($user))
+        {
+            return redirect()->route('profile', ['username'=>$user->username])->with('info', 'You are already friends');
+        }
+        Auth::user()->addFriend($user);
+        return redirect()->route('profile', ['username'=>$user->username]);
+
+    }
+
+    public function getAccept($username)
+    {
+        $user=User::where('username', $username)->first();
+        if(!$user)
+        {
+            return redirect()->route('home')->with('info', 'The user could not be found');
+        }
+
+        if(!Auth::user()->hasFriendRequestReceived($user))
+        {
+            return redirect()->route('home');
+        }
+
+
+        Auth::user()->acceptFriendRequest($user);
+        return redirect()->route('profile', ['username'=>$user->username]);
+    }
+
+    public function postDelete($username)
+    {
+        $user=User::where('username', $username)->first();
+        if(!Auth::user()->isFriendWith($user))
+        {
+            return redirect()->back();
+        }
+        Auth::user()->deleteFriend($user);
+        return redirect()->back();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

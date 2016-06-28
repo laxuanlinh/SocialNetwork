@@ -4,6 +4,7 @@ namespace Link\Models;
 
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Link\Models\Status;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
 class User extends Model implements AuthenticatableContract
@@ -61,6 +62,21 @@ class User extends Model implements AuthenticatableContract
         return "https://gravatar.com/avatar/{{ md5 ($this->email)}}?d=mm&s=50";
     }
 
+    public function getSmallAvatarUrl()
+    {
+        return "https://gravatar.com/avatar/{{ md5 ($this->email)}}?d=mm&s=30";
+    }
+
+    public function statuses()
+    {
+        return $this->hasMany('Link\Models\Status', 'uid');
+    }
+
+    public function likes()
+    {
+        return $this->hasMany('Link\Models\Like', 'uid');
+    }
+
     public function friendsOfMine()
     {
         return $this->belongsToMany('Link\Models\User', 'friends', 'user_id', 'friend_id');
@@ -106,7 +122,8 @@ class User extends Model implements AuthenticatableContract
 
     public function acceptFriendRequest(User $user)
     {
-        $this->friendRequests()->where('uid', $user->uid)->first()->pivot->update([
+        $this->friendRequests()->where('uid', $user->uid)->first()->pivot->
+        update([
            'accepted'=>true,
         ]);
     }
@@ -114,5 +131,24 @@ class User extends Model implements AuthenticatableContract
     public function isFriendWith(User $user)
     {
         return (boolean) $this->friends()->where('uid', $user->uid)->count();
+    }
+
+    //check if user has already liked the status
+    public function hasLikedStatus(Status $status)
+    {
+        if($status->likes
+            ->where('likeable_id', $status->sid)
+            ->where('likeable_type', get_class($status))
+            ->where('uid', $this->uid)
+            ->count()!==0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public function deleteFriend(User $user)
+    {
+        $this->friendOf()->detach($user->uid);
     }
 }
