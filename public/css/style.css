@@ -1,0 +1,10 @@
+body{
+    background-color: #E9EBEE;
+}
+
+/*status here*/
+.status-block{
+    margin-top:10px;
+    background-color: white;
+    padding:10px;
+}
