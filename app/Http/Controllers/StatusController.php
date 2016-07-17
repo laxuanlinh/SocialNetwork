@@ -3,6 +3,7 @@ namespace Link\Http\Controllers;
 
 Use Auth;
 Use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 use Link\Models\Like;
 Use Link\Models\Status;
 
@@ -10,82 +11,103 @@ class StatusController extends Controller
 {
     public function postStatus(Request $request)
     {
-        $this->validate($request, [
-            'status'=>'required|max:2000'
-        ]);
-        Auth::user()->statuses()->create([
-            'body'=>$request->input('status'),
-        ]);
-        return redirect()->route('home')->with('info', 'Your status has ben posted');
+        if($request->ajax())
+        {
+            $this->validate($request, [
+                'body'=>'required|max:2000'
+            ]);
+            $status=Status::create([
+                'body'=>$request->input("body")
+            ])->user()->associate(Auth::user());
+            $status->save();
+            return Response::json($status);
+        }
+        return Response::json(array('msg'=>'not done'), 400);
     }
 
-    public function postReply(Request $request, $statusId)
+    public function postReply(Request $request){
+        $statusId=$request->input('sid');
+        if($request->ajax()){
+            $this->validate($request,[
+                "body"=>"required|max:1000"
+            ]);
+            $status=Status::notReply()->where('sid', $statusId)->first();
+            if(!$status)
+            {
+                return Response::json(array('msg'=>'status'), 400);
+            }
+            if(!Auth::user()->isFriendWith($status->user) && Auth::user()->uid !== $status->user->uid)
+            {
+                return Response::json(array('msg'=>'is not friend'), 400);
+            }
+
+            //all checked, now create a reply
+            $reply=Status::create([
+                'body'=>$request->input("body")
+            ])->user()->associate(Auth::user());
+            $status->replies()->save($reply);
+            return Response::json($reply);
+        }
+    }
+
+    public function getLike(Request $request)
     {
-        $this->validate($request,[
-            "reply-{$statusId}"=>"required|max:1000"
-        ],[
-            "required"=>"Body is required"
-        ] );
 
-        //don't know what this is, probably finding statuses which are not reply
-        //don't ever use find() method as it always finds id column
-        $status=Status::notReply()->where('sid', $statusId)->first();
-        if(!$status)
+        if($request->ajax())
         {
-            return redirect()->route('home');
+            $statusId=$request->input('sid');
+            $status=Status::find($statusId);
+            //if status doesn't exist
+            if(!$status)
+            {
+                return Response::json(array('msg'=>'status'), 400);
+            }
+            //if the user already liked it
+            if(Auth::user()->hasLikedStatus($status))
+            {
+                return Response::json(array('msg'=>'status'), 400);
+            }
+            //no?
+            $like=$status->likes()->create([]);
+            Auth::user()->likes()->save($like);
+            return Response::json($like);
         }
-
-        //check if the current user is friend with the status's user
-        //and allow current user reply to its own status without being
-        //friend to its own
-        if(!Auth::user()->isFriendWith($status->user) && Auth::user()->uid !== $status->user->uid)
-        {
-            return redirect()->route('home');
-        }
-
-        //all checked, now create a reply
-        $reply=Status::create([
-           'body'=>$request->input("reply-{$statusId}")
-        ])->user()->associate(Auth::user());
-        $status->replies()->save($reply);
-
-        return redirect()->back();
+        return Response::json(array('msg'=>'status'), 400);
     }
 
-    public function getLike($statusId)
+    public function getDislike(Request $request)
     {
-        $status=Status::find($statusId);
-        if(!$status)
+        if($request->ajax())
         {
-            return redirect()->back();
-        }
+            $statusId=$request->input('sid');
+            $status=Status::find($statusId);
+            if(!$status)
+            {
+                return Response::json(array('msg'=>'status'), 400);
+            }
 
-        if(Auth::user()->hasLikedStatus($status))
-        {
-            return redirect()->back();
+            $like=Like::where('sid', $statusId)->where('uid', Auth::user()->uid)->first();
+            if(!$like)
+            {
+                return Response::json(array('msg'=>'status'), 400);
+            }
+            $like->delete();
+            return Response::json($like);
         }
-
-        $like=$status->likes()->create([]);
-        Auth::user()->likes()->save($like);
-        return redirect()->back();
+        return Response::json(array('msg'=>'status'), 400);
     }
 
-    public function getDislike($statusId)
-    {
-        $status=Status::find($statusId);
-        if(!$status)
-        {
-            return redirect()->back();
-        }
-
-        $like=Like::where('likeable_id', $statusId)->where('uid', Auth::user()->uid)->first();
-        if(!$like)
-        {
-            return redirect()->back();
-        }
-        $like->delete();
-        return redirect()->back();
-    }
+   public function getLikeCount(Request $request)
+   {
+       $statusId=$request->input('sid');
+       $status=Status::find($statusId);
+       if(!$status)
+       {
+           return Response::json(array('msg'=>'status'), 400);
+       }
+       $count=$status->likes->count();
+       return Response::json($count);
+   }
 }
 
 

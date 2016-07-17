@@ -27,11 +27,11 @@ class Status extends Model
 
     public function replies()
     {
-        return $this->hasMany('Link\Models\Status', 'parent_id');
+        return $this->hasMany('Link\Models\Status', 'parent_id')->orderBy('created_at', 'desc');
     }
 
     public function likes()
     {
-        return $this->morphMany('Link\Models\Like', 'likeable');
+        return $this->hasMany('Link\Models\Like', 'sid');
     }
 }

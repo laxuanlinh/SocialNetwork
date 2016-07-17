@@ -59,12 +59,12 @@ class User extends Model implements AuthenticatableContract
 
     public function getAvatarUrl()
     {
-        return "https://gravatar.com/avatar/{{ md5 ($this->email)}}?d=mm&s=50";
+        return "https://gravatar.com/avatar/{{$this->email}}?d=mm&s=50";
     }
 
     public function getSmallAvatarUrl()
     {
-        return "https://gravatar.com/avatar/{{ md5 ($this->email)}}?d=mm&s=30";
+        return "https://gravatar.com/avatar/{{$this->email}}?d=mm&s=30";
     }
 
     public function statuses()
@@ -136,11 +136,8 @@ class User extends Model implements AuthenticatableContract
     //check if user has already liked the status
     public function hasLikedStatus(Status $status)
     {
-        if($status->likes
-            ->where('likeable_id', $status->sid)
-            ->where('likeable_type', get_class($status))
-            ->where('uid', $this->uid)
-            ->count()!==0)
+        $check=Like::where('sid', $status->sid)->where('uid', $this->uid)->first();
+        if($check!==null)
         {
             return true;
         }

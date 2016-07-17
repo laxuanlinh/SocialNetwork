@@ -108,20 +108,26 @@ Route::post('status', [
     'as'=>'status.post'
 ]);
 
-Route::post('status/{statusId}/reply', [
-    'uses'=>'\Link\Http\Controllers\StatusController@postReply',
-    'middleware'=>['auth'],
-    'as'=>'status.reply'
-]);
 
-Route::get('status/{statusId}/like', [
+Route::post('status/like', [
     'uses'=>'\Link\Http\Controllers\StatusController@getLike',
     'middleware'=>['auth'],
     'as'=>'status.like'
 ]);
 
-Route::get('status/{statusId}/dislike', [
+Route::post('status/dislike', [
     'uses'=>'\Link\Http\Controllers\StatusController@getDislike',
     'middleware'=>['auth'],
     'as'=>'status.dislike'
+]);
+
+Route::get('status/like/count', [
+    'uses'=>'\Link\Http\Controllers\StatusController@getLikeCount',
+    'middleware'=>['auth'],
+]);
+
+Route::post('status/reply', [
+    'uses'=>'\Link\Http\Controllers\StatusController@postReply',
+    'middleware'=>['auth'],
+    'as' => 'status.reply',
 ]);
