@@ -6,7 +6,7 @@
         </a>
         <div class="media-body">
             <h4 class="media-heading"><a href="/profile/{{username}}/">{{user.lastname}} {{user.firstname}}</a></h4>
-            <p>{{body}}</p>
+            <p class="status-body">{{body}}</p>
             <ul class="list-inline">
                 <li class="ago"></li>
                 <li><a class="like" data-id="{{sid}}" href="">Like</a></li>

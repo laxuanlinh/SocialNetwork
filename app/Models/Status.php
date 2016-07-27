@@ -34,4 +34,9 @@ class Status extends Model
     {
         return $this->hasMany('Link\Models\Like', 'sid');
     }
+
+    public function notifs()
+    {
+        return $this->morphMany('Link\Models\Notification', 'Notification');
+    }
 }

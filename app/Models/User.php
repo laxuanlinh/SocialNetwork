@@ -148,4 +148,33 @@ class User extends Model implements AuthenticatableContract
     {
         $this->friendOf()->detach($user->uid);
     }
+
+    public function notifs()
+    {
+        return $this->morphMany('Link\Models\Notification', 'Notification');
+    }
+
+    public function hasNotifiedLiked(Status $status)
+    {
+        $check=Notification::where('sid', $status->sid)
+            ->where('uid', $status->user()->uid)
+            ->where('type', 'like');
+        if($check!==null)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    public function hasNotifiedCommented(Status $status)
+    {
+        $check=Notification::where('sid', $status->sid)
+            ->where('uid', $status->user()->uid)
+            ->where('type', 'comment');
+        if($check!==null)
+        {
+            return false;
+        }
+        return true;
+    }
 }

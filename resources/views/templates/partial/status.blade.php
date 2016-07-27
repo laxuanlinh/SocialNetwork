@@ -4,7 +4,7 @@
     </a>
     <div class="media-body">
         <h4 class="media-heading"><a href="{{route('profile', ['username'=>$status->user->username])}}">{{$status->user->getNameOrUsername()}}</a></h4>
-        <p>{{$status->body}}</p>
+        <p class="status-body">{{$status->body}}</p>
         <ul class="list-inline">
             <li>{{$status->created_at->diffForHumans()}}</li>
 
@@ -38,7 +38,7 @@
                     </a>
                     <div class="media-body">
                         <h5 class="media-heading"><a href="{{route('profile', ['username'=>$reply->user->username])}}">{{$reply->user->getNameOrUsername()}}</a></h5>
-                        <p>{{$reply->body}}</p>
+                        <div class="reply-body">{{$reply->body}}</div>
                         <ul class="list-inline">
                             <li>{{$reply->created_at->diffForHumans()}}</li>
                             @if(!Auth::user()->hasLikedStatus($reply))

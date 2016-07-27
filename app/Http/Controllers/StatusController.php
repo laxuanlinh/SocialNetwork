@@ -5,7 +5,10 @@ Use Auth;
 Use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Link\Models\Like;
-Use Link\Models\Status;
+use Link\Models\Status;
+use Link\Models\Notification;
+use Link\Models\User;
+
 
 class StatusController extends Controller
 {
@@ -26,6 +29,9 @@ class StatusController extends Controller
     }
 
     public function postReply(Request $request){
+        ini_set('display_errors', 1);
+        error_reporting(E_ALL);
+
         $statusId=$request->input('sid');
         if($request->ajax()){
             $this->validate($request,[
@@ -40,12 +46,16 @@ class StatusController extends Controller
             {
                 return Response::json(array('msg'=>'is not friend'), 400);
             }
-
             //all checked, now create a reply
             $reply=Status::create([
                 'body'=>$request->input("body")
             ])->user()->associate(Auth::user());
             $status->replies()->save($reply);
+            $noti=$status->notifs()->create([
+                'body'=>'has commented on your status'
+            ]);
+            $user=User::where('uid', $status->user()->uid);
+            $user->notifs()->save($noti);
             return Response::json($reply);
         }
     }

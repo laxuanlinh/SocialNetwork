@@ -13,17 +13,17 @@
         </div>
     </div>
     <div class="row col-lg-8">
-        <div id="status-section" class="col-lg-12">
+        <div id="status-section" class="col-lg-12" data-next-page="{{$statuses->nextPageUrl()}}">
             @if($statuses->count()===0)
                 <p>Nothing to see here</p>
             @else
                 @foreach($statuses as $status)
                     @include('templates.partial.status')
                 @endforeach
-                {!! $statuses->render() !!}
+                {{--{!! $statuses->render() !!}--}}
             @endif
         </div>
     </div>
-    @include('templates.partial.reply-template');
-    @include('templates.partial.status-template');
+    @include('templates.partial.reply-template')
+    @include('templates.partial.status-template')
 @stop
